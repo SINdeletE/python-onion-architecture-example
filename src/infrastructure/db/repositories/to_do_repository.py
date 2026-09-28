@@ -28,9 +28,7 @@ from application.exception import (
 
 
 def _translate_database_error(exc: SQLAlchemyError | OSError) -> ApplicationError:
-    """Translate database failures without exposing SQL or driver messages."""
     if isinstance(exc, DBAPIError):
-        # asyncpg exposes PostgreSQL SQLSTATE on the wrapped driver exception.
         sqlstate = (
             getattr(exc.orig, "sqlstate", None)
             or getattr(exc.orig, "pgcode", None)
