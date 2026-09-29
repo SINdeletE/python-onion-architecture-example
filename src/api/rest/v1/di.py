@@ -1,23 +1,16 @@
-from fastapi import Depends, Request, FastAPI
-from typing import Annotated, AsyncIterator, cast
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from typing import Annotated, cast
+
+from fastapi import Depends, FastAPI, Request
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from infrastructure.db.settings import DbSettings
-from infrastructure.db.session import get_session_factory, create_engine
-from infrastructure.db.di import get_db_settings, get_to_do_repository
-
-from application.interfaces import ToDoRepositoryProtocol, ToDoServiceProtocol
 from application.di import get_to_do_service
+from application.interfaces import ToDoRepositoryProtocol, ToDoServiceProtocol
+from infrastructure.db.di import get_db_settings, get_to_do_repository
+from infrastructure.db.mappers import ToDoItemMapper
+from infrastructure.db.session import create_engine, get_session_factory
 
-# Infrastructure
-DbSettingsDep = Annotated[DbSettings, Depends(get_db_settings)]
-ToDoRepositoryDep = Annotated[ToDoRepositoryProtocol, Depends(get_to_do_repository)]
-
-# Application
-ToDoServiceDep = Annotated[ToDoServiceProtocol, Depends(get_to_do_service)]
-
-# Engine / Session
 
 @asynccontextmanager
 async def database_lifespan(app: FastAPI) -> AsyncIterator[None]:
@@ -30,6 +23,7 @@ async def database_lifespan(app: FastAPI) -> AsyncIterator[None]:
     finally:
         await engine.dispose()
 
+
 async def get_session(request: Request) -> AsyncIterator[AsyncSession]:
     try:
         session_factory = cast(
@@ -41,7 +35,28 @@ async def get_session(request: Request) -> AsyncIterator[AsyncSession]:
             "database_lifespan must be configured on the FastAPI application"
         ) from error
 
-    async with session_factory() as session:
+    async with session_factory.begin() as session:
         yield session
 
-AsyncSessionDep = Annotated[AsyncSession, Depends(get_session)]
+
+AsyncSessionDep = Annotated[
+    AsyncSession,
+    Depends(get_session, scope="function"),
+]
+
+
+async def provide_to_do_repository(session: AsyncSessionDep) -> ToDoRepositoryProtocol:
+    return get_to_do_repository(session=session, mapper=ToDoItemMapper())
+
+
+ToDoRepositoryDep = Annotated[
+    ToDoRepositoryProtocol,
+    Depends(provide_to_do_repository),
+]
+
+
+async def provide_to_do_service(repo: ToDoRepositoryDep) -> ToDoServiceProtocol:
+    return get_to_do_service(repo=repo)
+
+
+ToDoServiceDep = Annotated[ToDoServiceProtocol, Depends(provide_to_do_service)]

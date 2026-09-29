@@ -1,17 +1,17 @@
-from fastapi import APIRouter, Query, Path, Body, Depends
+from fastapi import APIRouter, Query, Path, Body
 
-from typing import Annotated, Iterable
+from typing import Annotated
 from datetime import datetime
 from uuid import UUID
 
-from di import ToDoServiceDep
+from .di import ToDoServiceDep
 
 from domain import ToDoItem
-from application.DTOs import *
+from application.DTOs import ToDoDeleteDTO, ToDoFindDTO, ToDoInsertDTO, ToDoUpdateDTO
 
 v1_router = APIRouter(prefix="/todoitems")
 
-@v1_router.get("/", tags=["todoitems"], response_model=Iterable[ToDoItem])
+@v1_router.get("/", tags=["todoitems"], response_model=list[ToDoItem])
 async def get_to_do_items(service: ToDoServiceDep,
                     id: Annotated[UUID | None, Query()] = None,
                     name: Annotated[str | None, Query(max_length=256)] = None,
@@ -19,7 +19,7 @@ async def get_to_do_items(service: ToDoServiceDep,
                     created_at: Annotated[datetime | None, Query()] = None):
     return await service.find(ToDoFindDTO(id=id, name=name, description=description, created_at=created_at))
 
-@v1_router.delete("/{id}", tags=["todoitems"], response_model=None)
+@v1_router.delete("/{id}", tags=["todoitems"])
 async def delete_to_do_items(service: ToDoServiceDep,
                         id: Annotated[UUID, Path()]):
     await service.delete(ToDoDeleteDTO(id))
@@ -31,7 +31,7 @@ async def put_to_do_items(service: ToDoServiceDep,
                     description: Annotated[str, Body(max_length=512)]):
     return await service.update(ToDoUpdateDTO(id=id, name=name, description=description))
 
-@v1_router.delete("/{id}", tags=["todoitems"], response_model=ToDoItem)
+@v1_router.post("/", tags=["todoitems"], response_model=ToDoItem, status_code=201)
 async def post_to_do_items(service: ToDoServiceDep,
                     name: Annotated[str, Body(max_length=256)],
                     description: Annotated[str, Body(max_length=512)]):

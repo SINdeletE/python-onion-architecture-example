@@ -7,7 +7,7 @@ class DbSettings(BaseSettings):
     db_password: SecretStr = Field(min_length=8)
     db_name: str = Field(min_length=1)
     db_host: str = Field(default="localhost", min_length=1)
-    db_port: int = Field(min_length=1)
+    db_port: int = Field(ge=1, le=65535)
     db_echo: bool = False
     db_pool_size: int = 5
     db_max_overflow: int = 5

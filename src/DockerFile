@@ -1,0 +1,26 @@
+FROM python:3.14-slim
+
+ARG APP_CONTAINER_PATH=/opt/todolist
+ARG APP_CONTAINER_PORT=8000
+
+ENV APP_CONTAINER_PATH=${APP_CONTAINER_PATH} \
+    APP_CONTAINER_PORT=${APP_CONTAINER_PORT} \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR ${APP_CONTAINER_PATH}
+
+RUN addgroup --system app \
+    && adduser --system --ingroup app app
+
+COPY src/requirements.txt ./requirements.txt
+
+RUN python -m pip install --no-cache-dir -r requirements.txt
+
+COPY --chown=app:app src/ ./
+
+USER app
+
+EXPOSE ${APP_CONTAINER_PORT}
+
+CMD ["sh", "-c", "exec python -m uvicorn main:app --host 0.0.0.0 --port \"${APP_CONTAINER_PORT}\""]

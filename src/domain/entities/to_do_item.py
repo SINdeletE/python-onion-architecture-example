@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from uuid import UUID, uuid7
-from datetime import datetime
+from datetime import datetime, timezone
 
 @dataclass
 class ToDoItem:
@@ -11,4 +11,4 @@ class ToDoItem:
 
     @classmethod
     def create(cls, name: str, description: str) -> ToDoItem:
-        return cls(id=uuid7(), name=name, description=description.strip(), created_at=datetime.now())
+        return cls(id=uuid7(), name=name, description=description.strip(), created_at=datetime.now(timezone.utc))
