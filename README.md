@@ -1,3 +1,5 @@
 # python-onion-architecture-todolist
 
-Пример To-Do API на FastAPI, SQLAlchemy и PostgreSQL с onion-архитектурой.
+Example of clean/onion architecture 
+
+Stack: FastAPI, SQLAlchemy, PostgreSQL, docker-compose, Alembic
