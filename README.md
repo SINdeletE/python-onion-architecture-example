@@ -1,4 +1,4 @@
-# python-onion-architecture-todolist
+# python-onion-architecture-example
 
 Example of clean/onion architecture 
 
