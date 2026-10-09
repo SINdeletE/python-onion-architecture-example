@@ -19,7 +19,7 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-database_url = DbSettings().asyncpg_database_url.render_as_string(
+database_url = DbSettings().asyncpg_database_url.render_as_string( # type: ignore
     hide_password=False
 )
 config.set_main_option("sqlalchemy.url", database_url.replace("%", "%%"))
