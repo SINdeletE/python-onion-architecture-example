@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from uuid import UUID
 from datetime import datetime
 
-from src.domain import ToDoItem
+from domain import ToDoItem
 
 @dataclass
 class ToDoAPIItem:

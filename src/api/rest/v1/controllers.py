@@ -8,7 +8,7 @@ from .di import ToDoServiceDep
 
 from domain import ToDoItem
 from application.DTOs import ToDoDeleteDTO, ToDoFindDTO, ToDoInsertDTO, ToDoUpdateDTO
-from src.api.rest.v1.schemas import ToDoAPIItem
+from api.rest.v1.schemas import ToDoAPIItem
 
 v1_router = APIRouter(prefix="/todoitems")
 
