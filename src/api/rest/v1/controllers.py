@@ -12,7 +12,7 @@ from api.rest.v1.schemas import ToDoAPIItem
 
 v1_router = APIRouter(prefix="/todoitems")
 
-@v1_router.get("/", tags=["todoitems"], response_model=list[ToDoItem])
+@v1_router.get("/", tags=["todoitems"], response_model=list[ToDoAPIItem])
 async def get_to_do_items(service: ToDoServiceDep,
                     id: Annotated[UUID | None, Query()] = None,
                     name: Annotated[str | None, Query(max_length=256)] = None,
@@ -27,7 +27,7 @@ async def delete_to_do_items(service: ToDoServiceDep,
                         id: Annotated[UUID, Path()]):
     await service.delete(ToDoDeleteDTO(id))
 
-@v1_router.put("/{id}", tags=["todoitems"], response_model=ToDoItem)
+@v1_router.put("/{id}", tags=["todoitems"], response_model=ToDoAPIItem)
 async def put_to_do_items(service: ToDoServiceDep,
                     id: Annotated[UUID, Path()],
                     name: Annotated[str, Body(max_length=256)],
@@ -36,7 +36,7 @@ async def put_to_do_items(service: ToDoServiceDep,
     
     return ToDoAPIItem.create(result)
 
-@v1_router.post("/", tags=["todoitems"], response_model=ToDoItem, status_code=201)
+@v1_router.post("/", tags=["todoitems"], response_model=ToDoAPIItem, status_code=201)
 async def post_to_do_items(service: ToDoServiceDep,
                     name: Annotated[str, Body(max_length=256)],
                     description: Annotated[str, Body(max_length=512)]):
